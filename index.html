@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>AKSES ADMIN PRIVATE</title>
+<style>
+    /* =========================================
+       RESET & VARIABLES
+    ========================================= */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+        --gold: #d4af37;
+        --gold-light: #f3e5ab;
+        --gold-dark: #aa8c2c;
+        --gold-glow: rgba(212, 175, 55, 0.4);
+        --black: #050505;
+        --dark: #0a0a0a;
+        --panel: rgba(20, 20, 20, 0.6);
+        --border: rgba(212, 175, 55, 0.3);
+        --text: #e0e0e0;
+        --text-muted: #888888;
+        --danger: #ff4d4d;
+        --success: #4dff88;
+    }
+
+    html, body {
+        background-color: var(--black);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: 
+            radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.08), transparent 40%),
+            radial-gradient(circle at 85% 30%, rgba(212, 175, 55, 0.05), transparent 40%);
+    }
+
+    /* =========================================
+       BACKGROUND EFFECTS
+    ========================================= */
+    .bg-grid {
+        position: fixed;
+        inset: 0;
+        background-image: 
+            linear-gradient(rgba(212, 175, 55, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(212, 175, 55, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    /* =========================================
+       MAIN CONTAINER
+    ========================================= */
+    .app-container {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px;
+        position: relative;
+        z-index: 10;
+        perspective: 1000px;
+    }
+
+    /* =========================================
+       PAGE 1: LOCK SCREEN
+    ========================================= */
+    #lockScreen {
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: center;
+    }
+    
+    #lockScreen.hidden {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+        pointer-events: none;
+        position: absolute;
+        visibility: hidden;
+    }
+
+    .lock-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, var(--dark), var(--black));
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 25px var(--gold-glow), inset 0 0 15px rgba(212, 175, 55, 0.2);
+        animation: pulseLock 2.5s infinite;
+    }
+
+    .lock-icon svg {
+        width: 32px;
+        height: 32px;
+        fill: var(--gold);
+    }
+
+    @keyframes pulseLock {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 25px var(--gold-glow); }
+        50% { transform: scale(1.05); box-shadow: 0 0 40px var(--gold); }
+    }
+
+    .lock-title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 800;
+        background: linear-gradient(to right, var(--gold-light), var(--gold), var(--gold-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+        letter-spacing: 1px;
+    }
+
+    .lock-subtitle {
+        text-align: center;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 30px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    /* Glass Card */
+    .glass-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 24px 20px;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 3px;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        opacity: 0.7;
+    }
+
+    /* Bank Info Box */
+    .bank-info {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px dashed rgba(212, 175, 55, 0.4);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .bank-label {
+        font-size: 10px;
+        letter-spacing: 2px;
+        color: var(--gold);
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+
+    .bank-number {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .copy-btn {
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        color: var(--gold);
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: bold;
+    }
+
+    .copy-btn:active { background: var(--gold); color: var(--black); }
+
+    .bank-name {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 6px;
+        letter-spacing: 1px;
+    }
+
+    /* Input Field */
+    .input-group {
+        margin-bottom: 20px;
+    }
+
+    .input-label {
+        display: block;
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .nominal-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .nominal-wrapper:focus-within {
+        border-color: var(--gold);
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+    }
+
+    .currency-prefix {
+        padding: 16px 10px 16px 16px;
+        color: var(--gold);
+        font-weight: 800;
+        font-size: 16px;
+    }
+
+    .nominal-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 16px 16px 16px 0;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        outline: none;
+        letter-spacing: 1px;
+    }
+
+    .nominal-input::placeholder { color: #444; font-weight: normal; }
+
+    /* Submit Button */
+    .btn-gold {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light), var(--gold));
+        background-size: 200% auto;
+        color: var(--black);
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+        text-transform: uppercase;
+    }
+
+    .btn-gold:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
+    }
+
+    .btn-gold:hover {
+        background-position: right center;
+    }
+
+    .error-msg {
+        color: var(--danger);
+        font-size: 12px;
+        text-align: center;
+        margin-top: 12px;
+        font-weight: 600;
+        display: none;
+        animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    /* =========================================
+       PAGE 2: UNLOCKED PANEL
+    ========================================= */
+    #unlockedPanel {
+        display: none;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #unlockedPanel.active {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        background: radial-gradient(circle, rgba(77, 255, 136, 0.15), transparent);
+        border: 2px solid var(--success);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 30px rgba(77, 255, 136, 0.3);
+    }
+
+    .success-icon svg {
+        width: 40px;
+        height: 40px;
+        fill: var(--success);
+    }
+
+    .panel-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--success);
+        margin-bottom: 10px;
+        text-shadow: 0 0 15px rgba(77, 255, 136, 0.4);
+    }
+
+    .panel-desc {
+        text-align: center;
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 30px;
+    }
+
+    .access-btn {
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        padding: 18px;
+        background: rgba(77, 255, 136, 0.1);
+        border: 1px solid var(--success);
+        color: var(--success);
+        border-radius: 12px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        font-size: 14px;
+        text-transform: uppercase;
+        transition: all 0.3s;
+    }
+
+    .access-btn:active {
+        background: var(--success);
+        color: var(--black);
+    }
+
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<div class="app-container">
+    
+    <!-- =========================================
+         HALAMAN 1: AKSES TERKUNCI
+    ========================================= -->
+    <div id="lockScreen">
+        
+        <div class="lock-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 17a2 2 0 0 0 2-2 2 2 0 0 0-2-2 2 2 0 0 0-2 2 2 2 0 0 0 2 2m6-9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5 5 5 0 0 1 5 5v2h1m-6-5a3 3 0 0 0-3 3v2h6V6a3 3 0 0 0-3-3z"/></svg>
+        </div>
+
+        <h1 class="lock-title">AKSES TERKUNCI</h1>
+        <p class="lock-subtitle">TOP UP 50K UNTUK MENGAMBIL AKSES</p>
+
+        <div class="glass-card">
+            
+            <div class="bank-info">
+                <div class="bank-label">TRANSFER VIA DANA</div>
+                <div class="bank-number">
+                    <span id="danaNumber">0882-2928-6129</span>
+                    <button class="copy-btn" id="copyDana">SALIN</button>
+                </div>
+                <div class="bank-name">A/N : ROH*****</div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">MASUKKAN NOMINAL</label>
+                <div class="nominal-wrapper">
+                    <span class="currency-prefix">Rp</span>
+                    <input type="tel" id="nominalInput" class="nominal-input" placeholder="50.000" autocomplete="off">
+                </div>
+            </div>
+
+            <button class="btn-gold" id="checkAccessBtn">CEK AKSES</button>
+            <div class="error-msg" id="errorMsg">Nominal tidak valid! Minimal Rp 50.000</div>
+
+        </div>
+    </div>
+
+    <!-- =========================================
+         HALAMAN 2: AKSES TERBUKA
+    ========================================= -->
+    <div id="unlockedPanel">
+        <div class="success-icon">
+            <svg viewBox="0 0 24 24"><path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/></svg>
+        </div>
+        <h1 class="panel-title">AKSES DIBERIKAN</h1>
+        <p class="panel-desc">Pembayaran berhasil diverifikasi. Selamat datang di Panel Utama.</p>
+        
+        <a href="https://wa.me/6288229286129" target="_blank" class="access-btn">
+            HUBUNGI ADMIN
+        </a>
+    </div>
+
+</div>
+
+<script>
+    // =========================================
+    // LOGIKA APLIKASI
+    // =========================================
+
+    // 1. Fitur Salin Nomor DANA
+    document.getElementById('copyDana').addEventListener('click', function() {
+        const danaText = document.getElementById('danaNumber').innerText.replace(/-/g, '');
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(danaText).then(() => {
+                const originalText = this.innerText;
+                this.innerText = 'COPIED!';
+                this.style.background = 'var(--gold)';
+                this.style.color = 'var(--black)';
+                
+                setTimeout(() => {
+                    this.innerText = originalText;
+                    this.style.background = '';
+                    this.style.color = '';
+                }, 1500);
+            });
+        } else {
+            // Fallback untuk browser lama
+            const tempInput = document.createElement('input');
+            tempInput.value = danaText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            alert("Nomor DANA berhasil disalin: " + danaText);
+        }
+    });
+
+    // 2. Format Input Nominal (Ribuan otomatis)
+    const nominalInput = document.getElementById('nominalInput');
+    
+    nominalInput.addEventListener('input', function(e) {
+        // Hapus karakter selain angka
+        let value = this.value.replace(/[^0-9]/g, '');
+        
+        // Format ke ribuan
+        if (value.length > 0) {
+            value = parseInt(value, 10).toLocaleString('id-ID');
+        }
+        
+        this.value = value;
+    });
+
+    // 3. Logika Cek Akses
+    document.getElementById('checkAccessBtn').addEventListener('click', function() {
+        const errorMsg = document.getElementById('errorMsg');
+        const inputStr = nominalInput.value.replace(/\./g, ''); // Hapus titik format
+        const nominal = parseInt(inputStr, 10);
+
+        // Sembunyikan error
+        errorMsg.style.display = 'none';
+
+        // Validasi Input Kosong / 0
+        if (isNaN(nominal) || nominal === 0) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerText = 'Masukkan nominal terlebih dahulu!';
+            return;
+        }
+
+        // Validasi Minimal 50K
+        if (nominal < 50000) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerText = 'Nominal kurang! Minimal Rp 50.000';
+            
+            // Efek getar
+            const card = document.querySelector('.glass-card');
+            card.style.animation = 'none';
+            card.offsetHeight; // trigger reflow
+            card.style.animation = 'shake 0.4s';
+            return;
+        }
+
+        // ==========================================
+        // AKSES BERHASIL (Nominal >= 50000)
+        // ==========================================
+        
+        // Animasi tombol
+        this.innerText = 'LOADING...';
+        this.style.opacity = '0.7';
+        this.disabled = true;
+
+        // Simulasi loading sebentar (1.5 detik)
+        setTimeout(() => {
+            // Sembunyikan Layar Kunci
+            const lockScreen = document.getElementById('lockScreen');
+            lockScreen.classList.add('hidden');
+
+            // Tampilkan Panel
+            const unlockedPanel = document.getElementById('unlockedPanel');
+            setTimeout(() => {
+                unlockedPanel.classList.add('active');
+            }, 100);
+            
+        }, 1500);
+    });
+
+</script>
+</body>
+</html>
